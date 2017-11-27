@@ -106,24 +106,25 @@ class Game(object):
                 print("Invalid Input")
 
     def endGameDetection(self, row, column, player):
-        if (column != self.noCount1[0] and row != self.noCount1[1]) and (
-                        column != self.noCount2[0] and row != self.noCount2[1]):
-            if self.horizontalDetection(row, column):
-                self.finish = True
-                print("Player with {} win!".format(player.disc))
-                return
-            if self.verticalDetection(row, column):
-                self.finish = True
-                print("Player with {} win!".format(player.disc))
-                return
-            if self.diagonalDetectionA(row, column):
-                self.finish = True
-                print("Player with {} win!".format(player.disc))
-                return
-            if self.diagonalDetectionB(row, column):
-                self.finish = True
-                print("Player with {} win!".format(player.disc))
-                return
+        if (column == self.noCount1[0] and row == self.noCount1[1]) or (
+                        column == self.noCount2[0] and row == self.noCount2[1]):
+            return
+        if self.horizontalDetection(row, column):
+            self.finish = True
+            print("Player with {} win!".format(player.disc))
+            return
+        if self.verticalDetection(row, column):
+            self.finish = True
+            print("Player with {} win!".format(player.disc))
+            return
+        if self.diagonalDetectionA(row, column):
+            self.finish = True
+            print("Player with {} win!".format(player.disc))
+            return
+        if self.diagonalDetectionB(row, column):
+            self.finish = True
+            print("Player with {} win!".format(player.disc))
+            return
 
     def horizontalDetection(self, row, column):
         count = 0
@@ -132,11 +133,13 @@ class Game(object):
                 count += 1
             else:
                 break
+        print(count)
         for k in range(column, self.width):
             if self.board[k][row] == self.board[column][row]:
                 count += 1
             else:
                 break
+        print(count)
         return True if count >= 4 else False
 
     def verticalDetection(self, row, column):
