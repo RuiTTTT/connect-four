@@ -1,10 +1,10 @@
-from player import *
+import player
 
 
 class Game(object):
     def __init__(self):
         self.finish = False
-        # self.winner = None
+        self.winner = None
         self.player = [None, None]
         self.round = 1
         self.discs = ["X", "O"]
@@ -15,18 +15,18 @@ class Game(object):
             print("Player A human or computer?")
             selectionA = str(input("Enter c for COMPUTER, h for HUMAN: "))
             if selectionA == 'c':
-                self.player[0] = Computer(self.discs[0])
+                self.player[0] = player.Computer(self.discs[0])
             elif selectionA == 'h':
-                self.player[0] = Human(self.discs[0])
+                self.player[0] = player.Human(self.discs[0])
             else:
                 print("Invalid input!")
                 continue
             print("Player B human or computer?")
             selectionB = str(input("Enter c for COMPUTER, h for HUMAN: "))
             if selectionB == 'c':
-                self.player[1] = Computer(self.discs[1])
+                self.player[1] = player.Computer(self.discs[1])
             elif selectionB == 'h':
-                self.player[1] = Human(self.discs[1])
+                self.player[1] = player.Human(self.discs[1])
             else:
                 print("Invalid input!")
                 continue
@@ -75,55 +75,63 @@ class Game(object):
         else:
             self.turn = self.player[0]
 
-    def nextMove(self):
+    def makeMove(self):
         if self.round > sum(self.height):
             print("Draw Game!")
             self.finish = True
+            return -1
+        if isinstance(self.turn, player.Human):
+            move = self.turn.play()
+            move = self.letterInterprater(move)
+        else:
+            move = self.turn.play(self)
+        return move
+
+    def nextMove(self, temp):
+        if temp == -1:
             return
         move = None
         while move == None:
-            temp = self.turn.play(self.board)
-            temp = self.letterInterprater(temp)
             if temp >= 0 and temp <= self.width:
                 for i in range(self.height[temp]):
                     if self.board[temp][i] == ' ':
                         move = temp
                         self.board[move][i] = self.turn.disc
                         self.round += 1
-                        self.printBoard()
-                        self.endGameDetection(i, move, self.turn)
+                        self.endGameDetection(i, move)
                         self.switchPlay()
                         return
                     elif self.board[temp][i] == '.':
                         move = temp
                         self.board[move][i] = self.turn.disc.lower()
                         self.round += 1
-                        self.printBoard()
                         self.switchPlay()
                         return
                 print("Column is full")
+                temp = self.makeMove()
             else:
                 print("Invalid Input")
+                temp = self.makeMove()
 
-    def endGameDetection(self, row, column, player):
+    def endGameDetection(self, row, column):
         if (column == self.noCount1[0] and row == self.noCount1[1]) or (
                         column == self.noCount2[0] and row == self.noCount2[1]):
             return
         if self.horizontalDetection(row, column):
             self.finish = True
-            print("Player with {} win!".format(player.disc))
+            self.winner = self.turn
             return
         if self.verticalDetection(row, column):
             self.finish = True
-            print("Player with {} win!".format(player.disc))
+            self.winner = self.turn
             return
         if self.diagonalDetectionA(row, column):
             self.finish = True
-            print("Player with {} win!".format(player.disc))
+            self.winner = self.turn
             return
         if self.diagonalDetectionB(row, column):
             self.finish = True
-            print("Player with {} win!".format(player.disc))
+            self.winner = self.turn
             return
 
     def horizontalDetection(self, row, column):
@@ -133,13 +141,11 @@ class Game(object):
                 count += 1
             else:
                 break
-        print(count)
         for k in range(column, self.width):
             if self.board[k][row] == self.board[column][row]:
                 count += 1
             else:
                 break
-        print(count)
         return True if count >= 4 else False
 
     def verticalDetection(self, row, column):
@@ -194,11 +200,9 @@ class Game(object):
             j -= 1
         return True if count >= 4 else False
 
-
-g = Game()
-g.initBoard()
-g.printBoard()
-
-exit = False
-while not g.finish:
-    g.nextMove()
+    def getMove(self):
+        moves = []
+        for i in range(self.width):
+            if self.board[i][self.height[i] - 1] == ' ':
+                moves.append(i)
+        return moves
